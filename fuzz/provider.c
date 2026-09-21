@@ -697,19 +697,14 @@ end:
 
 int FuzzerTestOneInput(const uint8_t *buf, size_t len)
 {
-    int r = 1;
     uint64_t *operation = NULL;
     int64_t *algorithm = NULL;
 
-    if (!read_uint(&buf, &len, &operation)) {
-        r = 0;
+    if (!read_uint(&buf, &len, &operation))
         goto end;
-    }
 
-    if (!read_int(&buf, &len, &algorithm)) {
-        r = 0;
+    if (!read_int(&buf, &len, &algorithm))
         goto end;
-    }
 
     switch (*operation % 10) {
     case 0:
@@ -750,12 +745,15 @@ int FuzzerTestOneInput(const uint8_t *buf, size_t len)
         /* not yet implemented */
         break;
     default:
-        r = 0;
-        goto end;
+        break;
     }
 
 end:
     OPENSSL_free(operation);
     OPENSSL_free(algorithm);
-    return r;
+    /*
+     * libFuzzer reserves every return value other than 0 and -1 (-1 means
+     * "do not add this input to the corpus"), so always return 0 here.
+     */
+    return 0;
 }
